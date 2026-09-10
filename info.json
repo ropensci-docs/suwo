@@ -1,0 +1,13 @@
+{
+  "commit": {
+    "commit": "758f2f412c05f04da07c2b4ae2f9351fdef61878",
+    "author": "Marcelo <marcelo.araya@ucr.ac.cr>",
+    "time": "2026-09-10T20:19:32Z",
+    "files": 11,
+    "merge": false,
+    "message": "added XC annotations functionality\n"
+  },
+  "repo": "https://github.com/ropensci/suwo",
+  "pkg": "suwo",
+  "time": "2026-09-10T21:50:36Z"
+}
