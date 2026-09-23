@@ -1,0 +1,13 @@
+{
+  "commit": {
+    "commit": "7e4fb8a7f6eea2714d55d806b57c8b0fc8b0491e",
+    "author": "Marcelo <marcelo.araya@ucr.ac.cr>",
+    "time": "2026-09-23T16:38:48Z",
+    "files": 1,
+    "merge": false,
+    "message": "Update xenocanto_annotations.Rmd\n"
+  },
+  "repo": "https://github.com/ropensci/suwo",
+  "pkg": "suwo",
+  "time": "2026-09-23T17:25:46Z"
+}
