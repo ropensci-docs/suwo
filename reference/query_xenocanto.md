@@ -1,0 +1,200 @@
+# Access 'Xeno-Canto' recording metadata
+
+`query_xenocanto` searches for metadata from
+[Xeno-Canto](https://www.xeno-canto.org/).
+
+## Usage
+
+``` r
+query_xenocanto(
+  species = getOption("suwo_species"),
+  cores = getOption("suwo_cores", 1),
+  pb = getOption("suwo_pb", TRUE),
+  verbose = getOption("suwo_verbose", TRUE),
+  all_data = getOption("suwo_all_data", FALSE),
+  raw_data = getOption("suwo_raw_data", FALSE),
+  api_key = Sys.getenv("xc_api_key")
+)
+```
+
+## Arguments
+
+- species:
+
+  Character string with the scientific name of a species in the format:
+  "Genus epithet". Required. Can be set globally for the current R
+  session via the "suwo_species" option (e.g.
+  `options(suwo_species = "Hypsiboas rufitelus")`). Alternatively, a
+  character string containing additional tags that follows the
+  Xeno-Canto advanced query syntax can be provided. Tags are of the form
+  'tag:searchterm'. For instance, `'type:"song"'` will search for
+  recordings where the sound type contains 'song'. Multiple tags can be
+  provided (e.g., `'"cnt:"belize" type:"song"'`). This includes
+  Xeno-Canto's annotation-specific search tags (e.g. `ann_sp`,
+  `ann_type`, `ann_gen`, `ann_frq_low`, `ann_frq_high`; see Xeno-Canto's
+  search help linked below) to filter for recordings that have a
+  matching annotation – note this only filters *which recordings* are
+  returned; the actual annotation-level data for any returned recording
+  is available regardless of whether annotation tags were used in the
+  search (see Details). See examples down below and check [Xeno-Canto's
+  search help](https://www.xeno-canto.org/help/search) for a full
+  description.
+
+- cores:
+
+  Numeric vector of length 1. Controls whether parallel computing is
+  applied by specifying the number of cores to be used. Default is 1
+  (i.e. no parallel computing). Can be set globally for the current R
+  session via the "mc.cores" option (e.g. `options(mc.cores = 2)`). Note
+  that some repositories might not support parallel queries from the
+  same IP address as it might be identified as denial-of-service
+  cyberattack.
+
+- pb:
+
+  Logical argument to control if progress bar is shown. Default is
+  `TRUE`. Can be set globally for the current R session via the
+  "suwo_pb" option ( `options(suwo_pb = TRUE)`). Not shown if only a few
+  observations are found.
+
+- verbose:
+
+  Logical argument that determines if text is shown in console. Default
+  is `TRUE`. Can be set globally for the current R session via the
+  "suwo_verbose" option ( `options(suwo_verbose = TRUE)`).
+
+- all_data:
+
+  Logical argument that determines if all data available from database
+  is shown in the results of search. Default is `FALSE`. Can be set
+  globally for the current R session via the "suwo_all_data" option (
+  `options(suwo_all_data = TRUE)`).
+
+- raw_data:
+
+  Logical argument that determines if the raw data from the repository
+  is returned (e.g. without any manipulation). Default is `FALSE`. Can
+  be set globally for the current R session via the "suwo_raw_data"
+  option ( `options(suwo_raw_data = TRUE)`). If `TRUE` `all_data` is set
+  to `TRUE` internally. Useful for developers, or if users suspect that
+  some data is mishandled during processing (i.e. date information is
+  lost). Note that the metadata obtained when `raw_data = TRUE` is not
+  standardized, so most suwo functions for downstream steps will not
+  work on them.
+
+- api_key:
+
+  Character string refering to the key assigned by Xeno-Canto as
+  authorization for searches. Get yours at
+  <https://xeno-canto.org/account>. Required. Avoid setting your API key
+  directly in the function call to prevent exposing it in your code.
+  Instead, set it as an environment variable (e.g., in your .Renviron
+  file using `Sys.setenv(xc_api_key = "your_key_here")`) named
+  'xc_api_key', so it can be accessed securely using
+  `Sys.getenv("xc_api_key")`.
+
+## Value
+
+The function returns a data frame with the metadata of the media files
+matching the search criteria. If `all_data = TRUE`, all metadata fields
+(columns) are returned. If `raw_data = TRUE`, the raw data as obtained
+from the repository is returned (without any formatting).
+
+If any of the matching recordings have Xeno-Canto annotations attached
+(individually annotated sound segments within a recording, distinct from
+the recording-level metadata above), those are included as a data frame
+attached to the result via `attr(result, "annotations")` – see Details.
+If no matching recordings have any annotations, this attribute is not
+set (`attr(result, "annotations")` is `NULL`).
+
+## Details
+
+This function queries metadata for animal sound recordings in the
+open-access online repository [Xeno-Canto](https://www.xeno-canto.org/).
+[Xeno-Canto](https://www.xeno-canto.org/) hosts sound recordings of
+birds, frogs, non-marine mammals and grasshoppers. Complex queries can
+be constructed using the [Xeno-Canto](https://www.xeno-canto.org/)
+advanced query syntax (see examples).
+
+**Annotations.** Some Xeno-Canto recordings have one or more annotations
+attached: individually marked sound segments within the recording, each
+with their own scientific name, annotator, start/end time (in seconds),
+frequency range (in Hz), sound type, sex, life stage, and remarks. This
+is different from (and more granular than) the recording-level metadata
+returned in the main result – a single recording can have several
+annotations, each describing a different segment of that one sound file.
+
+Xeno-Canto includes this annotation data in the same API response used
+to fetch ordinary recording metadata, so retrieving it costs no extra
+requests and is always extracted (there is no separate argument to turn
+this on or off). When present, it is available as a data frame via
+`attr(result, "annotations")`, with one row per annotation; a message
+reports how many annotations were found and confirms they were added to
+this attribute. For reference, each annotation row also includes `key`
+(the Xeno-Canto ID of the recording it belongs to, matching the `key`
+column of the main result – use this to join back to the main result if
+needed), `species` (the species identified in that specific annotated
+segment – usually, but not necessarily always, the same as the parent
+recording's overall species; it can differ for an annotated background
+call of a different species), plus `file_url` and `observation_url`
+links to the parent recording.
+
+To search specifically for recordings that have annotations matching
+certain criteria (rather than just inspecting whatever annotations
+happen to be attached to whatever recordings a search returns), use
+Xeno-Canto's `ann_*` search tags directly in `species`, e.g.
+`species = 'ann_sp:"Turdus migratorius" ann_type:"call"'`.
+
+## References
+
+Planqué, Bob, & Willem-Pier Vellinga. 2008. Xeno-canto: a 21st-century
+way to appreciate Neotropical bird song. Neotrop. Birding 3: 17-23.
+
+## See also
+
+[`query_gbif()`](https://docs.ropensci.org/suwo/reference/query_gbif.md),
+[`query_wikiaves()`](https://docs.ropensci.org/suwo/reference/query_wikiaves.md),
+[`query_inaturalist()`](https://docs.ropensci.org/suwo/reference/query_inaturalist.md),
+[`download_media()`](https://docs.ropensci.org/suwo/reference/download_media.md)
+
+## Author
+
+Marcelo Araya-Salas (<marcelo.araya@ucr.ac.cr>)
+
+## Examples
+
+``` r
+if (interactive()){
+# An API key is required. Get yours at https://xeno-canto.org/account.
+# run this in the console but dont save it in a script
+Sys.setenv(xc_api_key = "YOUR_API_KEY_HERE")
+
+# Simple search for a species
+p_anth <- query_xenocanto(species = "Phaethornis anthophilus")
+
+# Search for same species and add specify country
+p_anth_cr <- query_xenocanto(
+species = 'sp:"Phaethornis anthophilus" cnt:"Panama"',
+raw_data = TRUE)
+
+# Search for female songs of a species
+femsong <-  query_xenocanto(
+species = 'sp:"Thryothorus ludovicianus" type:"song" type:"female"')
+
+# Any annotations attached to the returned recordings are available as
+# an attribute, regardless of the search used:
+poospiza <- query_xenocanto(species = "Poospiza hispaniolensis")
+annotations <- attr(poospiza, "annotations")
+annotations
+
+# each annotation row includes `key` and `species` for easy reference
+# back to the parent recording, e.g. to join with the main result:
+if (!is.null(annotations)) {
+  merge(annotations, poospiza, by = "key")
+}
+
+# Searching with an annotation-specific tag filters which recordings
+# are returned, but does not change how annotation data is retrieved:
+ann_search <- query_xenocanto(species = 'ann_sp:"Poospiza hispaniolensis"')
+}
+```

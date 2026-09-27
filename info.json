@@ -1,0 +1,13 @@
+{
+  "commit": {
+    "commit": "6b918f4990a506a2d18f9ef1c6cf0a993cf72489",
+    "author": "Marcelo Araya-Salas <marcelo.araya@ucr.ac.cr>",
+    "time": "2026-09-27T19:43:13Z",
+    "files": 1,
+    "merge": false,
+    "message": "Improve wording and clarify annotation usage\n\nReworded text for clarity and added export options."
+  },
+  "repo": "https://github.com/ropensci/suwo",
+  "pkg": "suwo",
+  "time": "2026-09-27T22:33:57Z"
+}

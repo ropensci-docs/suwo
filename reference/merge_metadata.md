@@ -1,0 +1,73 @@
+# Merge metadata data frames
+
+`merge_metadata` merges metadata data frames from suwo queries.
+
+## Usage
+
+``` r
+merge_metadata(..., check_columns = TRUE)
+```
+
+## Arguments
+
+- ...:
+
+  two or more data frames (each one as a separate entry) referring to
+  the metadata obtained from suwo query functions (`query_x()`).
+  Alternatively, a single list of data frames can be provided. The name
+  provided for each data frame (either as individual data frames or in a
+  list) will be used as label in the `source` column in the output data
+  frame.
+
+- check_columns:
+
+  Logical argument indicating if the function should check that all
+  input data frames have the required basic columns. Default is `TRUE`.
+
+## Value
+
+A single data frame with the data from all input data frames combined
+and with an additional column named `source` indicating the original
+data frame from which each row originated. The column `source` will
+contain the name provided for each data frame (either as individual data
+frames or in a list). If no names were provided, the object names will
+be used instead.
+
+## Details
+
+This function combines metadata from multiple sources (e.g. WikiAves and
+xeno-canto) into a single data frame for easier analysis and comparison.
+Each input data frame must be obtained from one of the suwo query
+functions (e.g.,
+[`query_wikiaves()`](https://docs.ropensci.org/suwo/reference/query_wikiaves.md),
+[`query_xenocanto()`](https://docs.ropensci.org/suwo/reference/query_xenocanto.md),
+etc.) with `raw_data = FALSE`.
+
+## Author
+
+Marcelo Araya-Salas (<marcelo.araya@ucr.ac.cr>)
+
+## Examples
+
+``` r
+# \donttest{
+# get metadata from 2 repos
+wa <- query_wikiaves(species = "Glaucis dohrnii", format =  "sound")
+#> ✖ No WikiAves authentication cookies were provided. Run access_wikiaves() first (see ?access_wikiaves), then either pass its result via the `cookies` argument or, by default, it is stored automatically for this session. 💀
+gb <- query_gbif(species = "Glaucis dohrnii", format = "sound")
+#> ✔ Obtaining metadata (25 matching records found) 🎉
+
+# run if queries didnt fail
+ if (!is.null(wa) && !is.null(gb)) {
+ # combine metadata using single data frames
+ merged_mt <- merge_metadata(wa, gb)
+
+ # combine metadata using named single data frames
+ merged_mt <- merge_metadata(wikiaves = wa, gbif = gb)
+
+ # combine metadata using a list of data frames
+ mt_list <- list(wikiaves = wa, gbif = gb)
+ merged_mt <- merge_metadata(mt_list)
+}
+# }
+```
