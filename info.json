@@ -1,0 +1,13 @@
+{
+  "commit": {
+    "commit": "49ce46868bf8c3f60817f2de6db0b03896664285",
+    "author": "Marcelo Araya-Salas <marcelo.araya@ucr.ac.cr>",
+    "time": "2026-10-09T17:35:23Z",
+    "files": 1,
+    "merge": false,
+    "message": "Fix invisible maps in geographic variation vignette\n\nout.height = \"100%\" on the leaflet widgets resolved to 0px because no\nancestor element in the plain html_document layout declares an\nexplicit height, so percentage heights had nothing to resolve\nagainst. Use a fixed pixel height instead.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>\n"
+  },
+  "repo": "https://github.com/ropensci/suwo",
+  "pkg": "suwo",
+  "time": "2026-10-09T21:11:11Z"
+}
